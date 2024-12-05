@@ -97,7 +97,7 @@ func (c *Lark) List(ctx context.Context, dir model.Obj, args model.ListArgs) ([]
 
 func (c *Lark) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (*model.Link, error) {
     token, ok := c.getObjToken(ctx, file.GetPath())
-    if (!ok) {
+    if !ok {
         return nil, errs.ObjectNotFound
     }
 
@@ -165,7 +165,7 @@ func (c *Lark) MakeDir(ctx context.Context, parentDir model.Obj, dirName string)
     }
 
     if !resp.Success() {
-        return nil, errors.New(resp.Error())
+        return nil, errors.New(resp.Error()))
     }
 
     return &model.Object{
@@ -184,7 +184,7 @@ func (c *Lark) Move(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, e
     }
 
     dstDirToken, ok := c.getObjToken(ctx, dstDir.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
@@ -201,8 +201,8 @@ func (c *Lark) Move(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, e
         return nil, err
     }
 
-    if !resp.Success() {
-        return nil, errors.New(resp.Error())
+    if (!resp.Success()) {
+        return nil, errors.New(resp.Error()))
     }
 
     return nil, nil
@@ -215,12 +215,12 @@ func (c *Lark) Rename(ctx context.Context, srcObj model.Obj, newName string) (mo
 
 func (c *Lark) Copy(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, error) {
     srcToken, ok := c.getObjToken(ctx, srcObj.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
     dstDirToken, ok := c.getObjToken(ctx, dstDir.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
@@ -234,12 +234,12 @@ func (c *Lark) Copy(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, e
 
     // 发起请求
     resp, err := c.client.Drive.File.Copy(ctx, req)
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
-    if !resp.Success() {
-        return nil, errors.New(resp.Error())
+    if (!resp.Success()) {
+        return nil, errors.New(resp.Error()))
     }
 
     return nil, nil
@@ -247,7 +247,7 @@ func (c *Lark) Copy(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, e
 
 func (c *Lark) Remove(ctx context.Context, obj model.Obj) error {
     token, ok := c.getObjToken(ctx, obj.GetPath())
-    if !ok {
+    if (!ok) {
         return errs.ObjectNotFound
     }
 
@@ -258,12 +258,12 @@ func (c *Lark) Remove(ctx context.Context, obj model.Obj) error {
 
     // 发起请求
     resp, err := c.client.Drive.File.Delete(ctx, req)
-    if err != nil {
+    if (err != nil) {
         return err
     }
 
-    if !resp.Success() {
-        return errors.New(resp.Error())
+    if (!resp.Success()) {
+        return errors.New(resp.Error()))
     }
 
     return nil
@@ -273,7 +273,7 @@ var uploadLimit = rate.NewLimiter(rate.Every(time.Second), 5)
 
 func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStreamer, up driver.UpdateProgress) (model.Obj, error) {
     token, ok := c.getObjToken(ctx, dstDir.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
@@ -290,12 +290,12 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
     // 发起请求
     uploadLimit.Wait(ctx)
     resp, err := c.client.Drive.File.UploadPrepare(ctx, req)
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
     if (!resp.Success()) {
-        return nil, errors.New(resp.Error())
+        return nil, errors.New(resp.Error()))
     }
 
     uploadId := *resp.Data.UploadId
@@ -305,7 +305,7 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
     // upload
     for i := 0; i < blockCount; i++ {
         length := int64(blockSize)
-        if i == blockCount-1 {
+        if (i == blockCount-1) {
             length = stream.GetSize() - int64(i*blockSize)
         }
 
@@ -324,12 +324,12 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
         uploadLimit.Wait(ctx)
         resp, err := c.client.Drive.File.UploadPart(ctx, req)
 
-        if err != nil {
+        if (err != nil) {
             return nil, err
         }
 
-        if !resp.Success() {
-            return nil, errors.New(resp.Error())
+        if (!resp.Success()) {
+            return nil, errors.New(resp.Error()))
         }
 
         up(float64(i) / float64(blockCount))
@@ -345,12 +345,12 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
 
     // 发起请求
     closeResp, err := c.client.Drive.File.UploadFinish(ctx, closeReq)
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
-    if !closeResp.Success() {
-        return nil, errors.New(closeResp.Error())
+    if (!closeResp.Success()) {
+        return nil, errors.New(closeResp.Error()))
     }
 
     return &model.Object{
