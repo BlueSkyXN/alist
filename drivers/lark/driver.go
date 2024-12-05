@@ -50,16 +50,16 @@ func (c *Lark) Drop(ctx context.Context) error {
 
 func (c *Lark) List(ctx context.Context, dir model.Obj, args model.ListArgs) ([]model.Obj, error) {
     token, ok := c.getObjToken(ctx, dir.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
-    if token == emptyFolderToken {
+    if (token == emptyFolderToken) {
         return nil, nil
     }
 
     resp, err := c.client.Drive.File.ListByIterator(ctx, larkdrive.NewListFileReqBuilder().FolderToken(token).Build())
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
@@ -69,11 +69,11 @@ func (c *Lark) List(ctx context.Context, dir model.Obj, args model.ListArgs) ([]
 
     for {
         ok, file, err = resp.Next()
-        if !ok {
+        if (!ok) {
             break
         }
 
-        if err != nil {
+        if (err != nil) {
             return nil, err
         }
 
@@ -97,7 +97,7 @@ func (c *Lark) List(ctx context.Context, dir model.Obj, args model.ListArgs) ([]
 
 func (c *Lark) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (*model.Link, error) {
     token, ok := c.getObjToken(ctx, file.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
@@ -106,17 +106,17 @@ func (c *Lark) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (*
         AppSecret: c.AppSecret,
     })
 
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
-    if !c.ExternalMode {
+    if (!c.ExternalMode) {
         accessToken := resp.TenantAccessToken
 
         url := fmt.Sprintf("https://open.feishu.cn/open-apis/drive/v1/files/%s/download", token)
 
         req, err := http.NewRequest(http.MethodGet, url, nil)
-        if err != nil {
+        if (err != nil) {
             return nil, err
         }
 
@@ -124,11 +124,11 @@ func (c *Lark) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (*
         req.Header.Set("Range", "bytes=0-1")
 
         ar, err := http.DefaultClient.Do(req)
-        if err != nil {
+        if (err != nil) {
             return nil, err
         }
 
-        if ar.StatusCode != http.StatusPartialContent {
+        if (ar.StatusCode != http.StatusPartialContent) {
             return nil, errors.New("failed to get download link")
         }
 
@@ -149,23 +149,23 @@ func (c *Lark) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (*
 
 func (c *Lark) MakeDir(ctx context.Context, parentDir model.Obj, dirName string) (model.Obj, error) {
     token, ok := c.getObjToken(ctx, parentDir.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
     body, err := larkdrive.NewCreateFolderFilePathReqBodyBuilder().FolderToken(token).Name(dirName).Build()
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
     resp, err := c.client.Drive.File.CreateFolder(ctx,
         larkdrive.NewCreateFolderFileReqBuilder().Body(body).Build())
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
-    if !resp.Success() {
-        return nil, errors.New(resp.Error()))
+    if (!resp.Success()) {
+        return nil, errors.New(resp.Error())
     }
 
     return &model.Object{
@@ -179,7 +179,7 @@ func (c *Lark) MakeDir(ctx context.Context, parentDir model.Obj, dirName string)
 
 func (c *Lark) Move(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, error) {
     srcToken, ok := c.getObjToken(ctx, srcObj.GetPath())
-    if !ok {
+    if (!ok) {
         return nil, errs.ObjectNotFound
     }
 
@@ -197,12 +197,12 @@ func (c *Lark) Move(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, e
 
     // 发起请求
     resp, err := c.client.Drive.File.Move(ctx, req)
-    if err != nil {
+    if (err != nil) {
         return nil, err
     }
 
     if (!resp.Success()) {
-        return nil, errors.New(resp.Error()))
+        return nil, errors.New(resp.Error())
     }
 
     return nil, nil
@@ -239,7 +239,7 @@ func (c *Lark) Copy(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj, e
     }
 
     if (!resp.Success()) {
-        return nil, errors.New(resp.Error()))
+        return nil, errors.New(resp.Error())
     }
 
     return nil, nil
@@ -263,7 +263,7 @@ func (c *Lark) Remove(ctx context.Context, obj model.Obj) error {
     }
 
     if (!resp.Success()) {
-        return errors.New(resp.Error()))
+        return errors.New(resp.Error())
     }
 
     return nil
@@ -295,7 +295,7 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
     }
 
     if (!resp.Success()) {
-        return nil, errors.New(resp.Error()))
+        return nil, errors.New(resp.Error())
     }
 
     uploadId := *resp.Data.UploadId
@@ -329,7 +329,7 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
         }
 
         if (!resp.Success()) {
-            return nil, errors.New(resp.Error()))
+            return nil, errors.New(resp.Error())
         }
 
         up(float64(i) / float64(blockCount))
@@ -350,16 +350,12 @@ func (c *Lark) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
     }
 
     if (!closeResp.Success()) {
-        return nil, errors.New(closeResp.Error()))
+        return nil, errors.New(closeResp.Error())
     }
 
     return &model.Object{
         ID: *closeResp.Data.FileToken,
     }, nil
 }
-
-//func (d *Lark) Other(ctx context.Context, args model.OtherArgs) (interface{}, error) {
-//	return nil, errs.NotSupport
-//}
 
 var _ driver.Driver = (*Lark)(nil)
